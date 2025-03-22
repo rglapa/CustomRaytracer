@@ -504,7 +504,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     }
     
     
-    matrix_float4x4 lastTransform = matrix4x4_translation(0.0f, 0.0f, 0.0f);
+    matrix_float4x4 lastTransform = matrix4x4_translation(2.5f, 2.5f, 0.0f);
     
     // Create an instance of the light.
     GeometryInstance *lightMeshInstance = [[GeometryInstance alloc] initWithGeometry:lightMesh
@@ -525,13 +525,13 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
                                                                                     transform:lastTransform
                                                                                          mask:GEOMETRY_MASK_SPHERE];
         
-        [scene addInstance: sphereGeometryInstance];
+        [scene addInstance:sphereGeometryInstance];
     }
     
     // Add a light for the box.
     AreaLight light;
     
-    light.position = vector3(0.0f, 1.98f, 0.0f);
+    light.position = vector3(2.5f, 4.48f, 0.0f);
     light.forward = vector3(0.0f, -1.0f, 0.0f);
     light.right = vector3(0.25f, 0.0f, 0.0f);
     light.up = vector3(0.0f, 0.0f, 0.25f);
