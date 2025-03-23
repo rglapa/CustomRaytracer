@@ -21,8 +21,9 @@
 
     _view = (MTKView *)self.view;
 
+#if TARGET_OS_IPHONE
     _view.device = MTLCreateSystemDefaultDevice();
-
+#else
     NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
     
     id<MTLDevice> selectedDevice;
@@ -39,11 +40,16 @@
     }
     _view.device = selectedDevice;
     
+    
     NSLog(@"Selected Device: %@", _view.device.name);
+#endif
     
     // Device must support Metal and ray tracing.
     NSAssert(_view.device && _view.device.supportsRaytracing,
              @"Ray tracing isn't supported on this device.");
+#if TARGET_OS_IPHONE
+    _view.backgroundColor = UIColor.blackColor;
+#endif
     
     _view.colorPixelFormat = MTLPixelFormatRGBA16Float;
     

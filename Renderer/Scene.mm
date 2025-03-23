@@ -148,9 +148,8 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     _normals.push_back(normalize(n0 + n1));
     _normals.push_back(n1);
     
-    for (int i = 0; i < 4;i++) {
+    for (int i = 0; i < 4;i++)
         _colors.push_back(color);
-    }
     
     for (size_t triangleIndex = 0; triangleIndex < 2; triangleIndex++) {
         Triangle triangle;
@@ -279,7 +278,8 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     }
     
     memcpy(_sphereBuffer.contents, _spheres.data(), _sphereBuffer.length);
-    memcpy(_boundingBoxBuffer.contents, _spheres.data(), _boundingBoxBuffer.length);
+    // Sets bounding boxes data to its contents memory address
+    memcpy(_boundingBoxBuffer.contents, boundingBoxes.data(), _boundingBoxBuffer.length);
     
 #if !TARGET_OS_IPHONE
     [_sphereBuffer didModifyRange:NSMakeRange(0, _sphereBuffer.length)];
@@ -301,6 +301,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     sphere.color = color;
     sphere.radius = radius;
     
+    NSLog(@"Sphere's Radius Squared: %f",sphere.radiusSquared);
     _spheres.push_back(sphere);
 }
 
@@ -332,6 +333,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
 }
 
 - (NSString *)intersectionFunctionName {
+    //NSLog(@"Sphereintersectionfunciton name caught.");
     return @"sphereIntersectionFunction";
 }
 
@@ -436,11 +438,11 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     
     [scene addGeometry:lightMesh];
     
-    matrix_float4x4 transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) * matrix4x4_scale(0.5f, 1.98f, 0.5f);
+    matrix_float4x4 transform = matrix4x4_translation(0.0f, 2.0f, 0.0f) * matrix4x4_scale(0.5f, 1.98f, 0.5f);
     
     // Add the light source.
     [lightMesh addCubeWithFaces:FACE_MASK_POSITIVE_Y
-                          color:vector3(1.0f, 1.0f, 1.0f)
+                          color:vector3(2.0f, 2.0f, 2.0f)
                       transform:transform
                   inwardNormals:true];
     
@@ -449,7 +451,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     
     [scene addGeometry:geometryMesh];
     
-    transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) * matrix4x4_scale(2.0f, 2.0f, 2.0f);
+    transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) * matrix4x4_scale(4.0f, 4.0f, 4.0f);
     
     // Add the top, bottom, and back walls.
     [geometryMesh addCubeWithFaces:FACE_MASK_NEGATIVE_Y | FACE_MASK_POSITIVE_Y | FACE_MASK_NEGATIVE_Z
@@ -469,7 +471,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
                          transform:transform
                      inwardNormals:true];
     
-    transform = matrix4x4_translation(-0.335f, 0.6f, -0.29f) *
+    transform = matrix4x4_translation(-0.335f, -0.2f, -0.29f) *
                 matrix4x4_rotation(0.3f, vector3(0.0f, 1.0f, 0.0f)) *
                 matrix4x4_scale(0.6f, 1.2f, 0.6f);
     
@@ -482,6 +484,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     SphereGeometry *sphereGeometry = nil;
     
     if (!useIntersectionFunctions) {
+        NSLog(@"In Not useIntersectionFunctions part");
         transform = matrix4x4_translation(0.3275f, 0.3f, 0.3725f) *
                     matrix4x4_rotation(-0.3f, vector3(0.0f, 1.0f, 0.0f)) *
                     matrix4x4_scale(0.6f, 0.6f, 0.6f);
@@ -493,18 +496,19 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
                          inwardNormals:false];
     }
     else {
+        NSLog(@"Sphere Geometry creation stage");
         // Otherwise create a piece of sphere geometry.
         sphereGeometry = [[SphereGeometry alloc] initWithDevice:device];
         
         [scene addGeometry:sphereGeometry];
-        
-        [sphereGeometry addSphereWithOrigin:vector3(0.3275f, 0.3f, 0.3725f)
-                                     radius:0.3f
+        //NSLog(@"Scene: %@", scene.geometries);
+        [sphereGeometry addSphereWithOrigin:vector3(0.7f, -0.4f, 0.3725f)
+                                     radius:0.4f
                                       color:vector3(0.725f, 0.71f, 0.68f)];
     }
     
     
-    matrix_float4x4 lastTransform = matrix4x4_translation(2.5f, 2.5f, 0.0f);
+    matrix_float4x4 lastTransform = matrix4x4_translation(0.0f, 0.0f, 0.0f);
     
     // Create an instance of the light.
     GeometryInstance *lightMeshInstance = [[GeometryInstance alloc] initWithGeometry:lightMesh
@@ -520,10 +524,13 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     [scene addInstance: geometryMeshInstance];
     
     // Create an instance of the sphere.
+    //NSLog(@"useIntersectionFunctions: %d", useIntersectionFunctions);
     if (useIntersectionFunctions) {
         GeometryInstance *sphereGeometryInstance = [[GeometryInstance alloc] initWithGeometry:sphereGeometry
                                                                                     transform:lastTransform
                                                                                          mask:GEOMETRY_MASK_SPHERE];
+        //NSLog(@"LastTransform's matrix: %f",lastTransform.columns[3][3]);
+        //NSLog(@"Sphere's Geometry transform: %f", sphereGeometryInstance.transform.columns[3][3]);
         
         [scene addInstance:sphereGeometryInstance];
     }
@@ -531,7 +538,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     // Add a light for the box.
     AreaLight light;
     
-    light.position = vector3(2.5f, 4.48f, 0.0f);
+    light.position = vector3(0.0f, 2.98f, 0.0f);
     light.forward = vector3(0.0f, -1.0f, 0.0f);
     light.right = vector3(0.25f, 0.0f, 0.0f);
     light.up = vector3(0.0f, 0.0f, 0.25f);
@@ -540,7 +547,7 @@ float3 getTriangleNormal(float3 v0, float3 v1, float3 v2) {
     float g = (float)rand() / (float)RAND_MAX;
     float b = (float)rand() / (float)RAND_MAX;
     
-    light.color = vector3(r * 4.0f, g * 4.0f,b * 4.0f);
+    light.color = vector3(r * 7.0f, g * 7.0f,b * 7.0f);
     
     [scene addLight:light];
     return scene;

@@ -4,7 +4,6 @@
 //
 //  Created by Ruben Glapa on 3/17/25.
 //
-
 #import "ShaderTypes.h"
 // File for Metal kernel and shader functions
 
@@ -211,7 +210,8 @@ BoundingBoxIntersection sphereIntersectionFunction(// Ray parameters passed to t
 #if SUPPORTS_METAL_3
                                                    ,const device void* perPrimitiveData [[primitive_data]]
 #endif
-) {
+)
+{
     Sphere sphere;
 #if SUPPORTS_METAL_3
     // Look up the resources for this piece of sphere geometry.
@@ -241,7 +241,9 @@ BoundingBoxIntersection sphereIntersectionFunction(// Ray parameters passed to t
     if (disc <= 0.0f) {
         // If the ray missed the sphere, return false.
         ret.accept = false;
-    } else {
+    }
+    else {
+        
         // Otherwise, compute the intersection distance.
         ret.distance = (-b - sqrt(disc)) / (2 * a);
         
